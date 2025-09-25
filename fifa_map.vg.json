@@ -1,0 +1,97 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "title": { "text": "FIFA Men's World Rankings (Ranks: 1-10, 11-25, 26-50, 51-100, 101+)" },
+  "width": 900,
+  "height": 520,
+  "projection": { "type": "equirectangular" },
+
+  "layer": [
+    { "data": { "sphere": true }, "mark": { "type": "geoshape", "fill": "#e9f2fb" } },
+    { "data": { "graticule": { "step": [30, 30] } }, "mark": { "type": "geoshape", "stroke": "#c6c6c6", "strokeWidth": 0.5 } },
+
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/vega/vega-datasets/master/data/world-110m.json",
+        "format": { "type": "topojson", "feature": "countries" }
+      },
+      "transform": [
+        { "calculate": "toNumber(datum.id)", "as": "id_num" },
+
+        {
+          "lookup": "id_num",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/vega/vega-datasets/master/data/world-110m-country-names.tsv",
+              "format": { "type": "tsv" }
+            },
+            "key": "id",
+            "fields": ["name"]
+          }
+        },
+
+    
+        {
+          "lookup": "name",
+          "from": {
+            "data": {
+              "values": [
+                {"name": "United States of America", "csvTeam": "USA"},
+                {"name": "Czech Republic", "csvTeam": "Czechia"},
+                {"name": "Swaziland", "csvTeam": "Eswatini"},
+                {"name": "Cape Verde", "csvTeam": "Cabo Verde"},
+                {"name": "Korea, South", "csvTeam": "Korea Republic"},
+                {"name": "Korea, North", "csvTeam": "Korea DPR"},
+                {"name": "Democratic Republic of the Congo", "csvTeam": "Congo DR"},
+                {"name": "Republic of the Congo", "csvTeam": "Congo"},
+                {"name": "Ivory Coast", "csvTeam": "Côte d'Ivoire"},
+                {"name": "Curacao", "csvTeam": "Curaçao"},
+                {"name": "Sao Tome and Principe", "csvTeam": "São Tomé and Príncipe"},
+                {"name": "East Timor", "csvTeam": "Timor-Leste"},
+                {"name": "Iran", "csvTeam": "IR Iran"},
+                {"name": "Viet Nam", "csvTeam": "Vietnam"}
+              ]
+            },
+            "key": "name",
+            "fields": ["csvTeam"]
+          }
+        },
+        {
+          "calculate": "isValid(datum.csvTeam) ? datum.csvTeam : datum.name",
+          "as": "name_for_csv"
+        },
+
+      
+        {
+          "lookup": "name_for_csv",
+          "from": {
+            "data": { "url": "fifa_rankings_2024_2.csv", "format": { "type": "csv" } },
+            "key": "team",
+            "fields": ["rank"]
+          }
+        },
+
+        {
+          "calculate": "isValid(datum.rank) ? (toNumber(datum.rank) <= 10 ? '1-10' : (toNumber(datum.rank) <= 25 ? '11-25' : (toNumber(datum.rank) <= 50 ? '26-50' : (toNumber(datum.rank) <= 100 ? '51-100' : '101+')))) : 'No data'",
+          "as": "rank_band"
+        }
+      ],
+
+      "mark": "geoshape",
+      "encoding": {
+        "color": {
+          "field": "rank_band",
+          "type": "nominal",
+          "scale": {
+            "domain": ["1-10", "11-25", "26-50", "51-100", "101+", "No data"],
+            "range":  ["#2ca25f", "#9bd47c", "#ffe082", "#fdae61", "#d73027", "#efefef"]
+          },
+          "legend": { "title": "FIFA Rank (bands)" }
+        },
+        "tooltip": [
+          { "field": "name_for_csv", "type": "nominal", "title": "Country / Team" },
+          { "field": "rank", "type": "quantitative", "title": "Rank" }
+        ]
+      }
+    }
+  ]
+}

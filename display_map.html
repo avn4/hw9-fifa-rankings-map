@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIFA Rankings Map</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"></script>
+
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    h1 { margin: 0 0 6px; }
+    .note { color: #666; margin: 0 0 16px; }
+  </style>
+</head>
+<body>
+  <h1>FIFA Men's World Rankings (2024 S2)</h1>
+  <p class="note">Bands: <strong>1–10</strong> (green), <strong>11–25</strong>, <strong>26–50</strong>, <strong>51–100</strong>, <strong>101+</strong> (red). Missing = light grey.</p>
+  <div id="map_chart"></div>
+
+  <script src="vega_lite_vis.js"></script>
+</body>
+</html>
