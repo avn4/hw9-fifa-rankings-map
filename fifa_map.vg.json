@@ -7,10 +7,10 @@
 
 "layer": [
 {"data": {"sphere": true },
-"mark": {"type": "geoshape", "fill": "#e9f2fb"}},
+"mark": {"type": "geoshape", "fill": "lightcyan"}},
 
 {"data": {"graticule": { "step": [30, 30] } },
-"mark": {"type": "geoshape", "stroke": "#c6c6c6", "strokeWidth": 0.5}},
+"mark": {"type": "geoshape", "stroke":"silver", "strokeWidth": 0.5}},
 
 {"data": {"url": "https://vega.github.io/vega-datasets/data/world-110m.json", 
 "format": {"type": "topojson", "feature": "countries" }},
@@ -85,4 +85,5 @@
 }
 ]
 }
+
 
