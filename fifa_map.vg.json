@@ -1,97 +1,88 @@
 {
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "title": { "text": "FIFA Men's World Rankings (Ranks: 1-10, 11-25, 26-50, 51-100, 101+)" },
-  "width": 900,
-  "height": 520,
-  "projection": { "type": "equirectangular" },
+"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+"title": { "text": "FIFA Men's World Rankings (Bands: 1-10, 11-25, 26-50, 51-100, 101+)" },
+"width": 900,
+"height": 520,
+"projection": {"type": "equirectangular"},
 
-  "layer": [
-    { "data": { "sphere": true }, "mark": { "type": "geoshape", "fill": "#e9f2fb" } },
-    { "data": { "graticule": { "step": [30, 30] } }, "mark": { "type": "geoshape", "stroke": "#c6c6c6", "strokeWidth": 0.5 } },
+"layer": [
+{"data": {"sphere": true },
+"mark": {"type": "geoshape", "fill": "#e9f2fb"}},
 
-    {
-      "data": {
-        "url": "https://raw.githubusercontent.com/vega/vega-datasets/master/data/world-110m.json",
-        "format": { "type": "topojson", "feature": "countries" }
-      },
-      "transform": [
-        { "calculate": "toNumber(datum.id)", "as": "id_num" },
+{"data": {"graticule": { "step": [30, 30] } },
+"mark": {"type": "geoshape", "stroke": "#c6c6c6", "strokeWidth": 0.5}},
 
-        {
-          "lookup": "id_num",
-          "from": {
-            "data": {
-              "url": "https://raw.githubusercontent.com/vega/vega-datasets/master/data/world-110m-country-names.tsv",
-              "format": { "type": "tsv" }
-            },
-            "key": "id",
-            "fields": ["name"]
-          }
-        },
+{"data": {"url": "https://vega.github.io/vega-datasets/data/world-110m.json", 
+"format": {"type": "topojson", "feature": "countries" }},
+"transform": [{"lookup": "id", "from": {"data": 
+{"url": "https://raw.githubusercontent.com/KoGor/Map-Icons-Generator/master/data/world-110m-country-names.tsv", "format": { "type": "tsv" }},
+"key": "id", "fields": ["name"]},
+"as": ["country_raw"]
+},
 
-    
-        {
-          "lookup": "name",
-          "from": {
-            "data": {
-              "values": [
-                {"name": "United States of America", "csvTeam": "USA"},
-                {"name": "Czech Republic", "csvTeam": "Czechia"},
-                {"name": "Swaziland", "csvTeam": "Eswatini"},
-                {"name": "Cape Verde", "csvTeam": "Cabo Verde"},
-                {"name": "Korea, South", "csvTeam": "Korea Republic"},
-                {"name": "Korea, North", "csvTeam": "Korea DPR"},
-                {"name": "Democratic Republic of the Congo", "csvTeam": "Congo DR"},
-                {"name": "Republic of the Congo", "csvTeam": "Congo"},
-                {"name": "Ivory Coast", "csvTeam": "Côte d'Ivoire"},
-                {"name": "Curacao", "csvTeam": "Curaçao"},
-                {"name": "Sao Tome and Principe", "csvTeam": "São Tomé and Príncipe"},
-                {"name": "East Timor", "csvTeam": "Timor-Leste"},
-                {"name": "Iran", "csvTeam": "IR Iran"},
-                {"name": "Viet Nam", "csvTeam": "Vietnam"}
-              ]
-            },
-            "key": "name",
-            "fields": ["csvTeam"]
-          }
-        },
-        {
-          "calculate": "isValid(datum.csvTeam) ? datum.csvTeam : datum.name",
-          "as": "name_for_csv"
-        },
+        
+{
+"lookup": "country_raw",
+"from": {
+"data": {
+"values": [
+{ "country_raw": "United States", "team_key": "USA" },
+{ "country_raw": "United Kingdom", "team_key": "England" },
+{ "country_raw": "Cote d'Ivoire", "team_key": "Côte d'Ivoire" },
+{ "country_raw": "Russian Federation", "team_key": "Russia" },
+{ "country_raw": "Korea, Republic of", "team_key": "Korea Republic" },
+{ "country_raw": "Korea, Democratic People's Republic of", "team_key": "Korea DPR" },
+{ "country_raw": "Syrian Arab Republic", "team_key": "Syria" },
+{ "country_raw": "Viet Nam", "team_key": "Vietnam" },
+{ "country_raw": "Lao People's Democratic Republic", "team_key": "Laos" },
+{ "country_raw": "Swaziland", "team_key": "Eswatini" },
+{ "country_raw": "Czech Republic", "team_key": "Czechia"},
+{ "country_raw": "Macedonia, the former Yugoslav Republic of", "team_key": "North Macedonia"},
+{ "country_raw": "Myanmar", "team_key": "Myanmar"},
+{ "country_raw": "Taiwan, Province of China", "team_key": "Chinese Taipei"}
+]
+},
+"key": "country_raw",
+"fields": ["team_key"]
+},
+"as": ["team_key"]
+},
+
+        
+{
+"calculate": "isValid(datum.team_key) ? datum.team_key : datum.country_raw",
+"as": "team_join"
+},
+
+   
+{
+  "lookup": "team_join",
+  "from": {"data": {"url": "fifa_rankings_2024_2.csv" }, "key": "team",
+  "fields": ["rank"]}
+},
 
       
-        {
-          "lookup": "name_for_csv",
-          "from": {
-            "data": { "url": "fifa_rankings_2024_2.csv", "format": { "type": "csv" } },
-            "key": "team",
-            "fields": ["rank"]
-          }
-        },
+{"calculate": "datum.country_raw", "as": "country" },
 
-        {
-          "calculate": "isValid(datum.rank) ? (toNumber(datum.rank) <= 10 ? '1-10' : (toNumber(datum.rank) <= 25 ? '11-25' : (toNumber(datum.rank) <= 50 ? '26-50' : (toNumber(datum.rank) <= 100 ? '51-100' : '101+')))) : 'No data'",
-          "as": "rank_band"
-        }
-      ],
-
-      "mark": "geoshape",
-      "encoding": {
-        "color": {
-          "field": "rank_band",
-          "type": "nominal",
-          "scale": {
-            "domain": ["1-10", "11-25", "26-50", "51-100", "101+", "No data"],
-            "range":  ["#2ca25f", "#9bd47c", "#ffe082", "#fdae61", "#d73027", "#efefef"]
-          },
-          "legend": { "title": "FIFA Rank (bands)" }
-        },
-        "tooltip": [
-          { "field": "name_for_csv", "type": "nominal", "title": "Country / Team" },
-          { "field": "rank", "type": "quantitative", "title": "Rank" }
-        ]
-      }
-    }
-  ]
+{
+  "calculate": "isValid(datum.rank) ? (datum.rank <= 10 ? '1-10' : (datum.rank <= 25 ? '11-25' : (datum.rank <= 50 ? '26-50' : (datum.rank <= 100 ? '51-100' : '101+')))) : 'No data'",
+  "as": "rank_band"
 }
+],
+
+  
+"mark": "geoshape",
+"encoding": {
+"color": {"field": "rank_band", "type": "nominal", "scale": {
+            "domain": ["1-10", "11-25", "26-50", "51-100", "101+", "No data"],
+            "range":  ["darkgreen", "green", "yellowgreen", "orange", "red", "lightgrey"]},
+          "legend": { "title": "FIFA Rank (bands)" }
+},
+  
+"tooltip": [{ "field": "country", "type": "nominal", "title": "Country" },
+          { "field": "rank", "type": "quantitative", "title": "Rank" }]
+}
+}
+]
+}
+
